@@ -6,8 +6,9 @@ import { useNavigate } from "react-router-dom";
 
 const Chat = () => {
   const [user, setUser] = useState(null);
-  const [chatListClick, setChatListClick] = useState(false);
-  const [loadingUser, setLoadingUser] = useState(true);
+
+  const [selectedTab, setSelectedTab] = useState("groups");
+  const [selectedChat, setSelectedChat] = useState(null);
 
   const { logout, token } = useAuth();
   const navigate = useNavigate();
@@ -18,15 +19,9 @@ const Chat = () => {
   }, []);
 
   const fetchUser = async () => {
-    setLoadingUser(true);
-
     try {
       const response = await fetch(`${host}/api/kurakani/chat/user`, {
-        method: "GET",
-        credentials: "include",
         headers: {
-          Accept: "*/*",
-          "Content-Type": "application/json",
           authorization: `Bearer ${token}`,
         },
       });
@@ -37,14 +32,8 @@ const Chat = () => {
         setUser(r.user);
       }
     } catch (err) {
-      console.error("Failed to fetch user", err);
-    } finally {
-      setLoadingUser(false);
+      console.error(err);
     }
-  };
-
-  const handleCloseChatList = (isClicked) => {
-    setChatListClick(isClicked);
   };
 
   const handleLogout = () => {
@@ -53,46 +42,81 @@ const Chat = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <div className="bg-cardBgLight dark:bg-cardBgDark rounded-2xl p-6 border shadow-lg">
+    <div className="min-h-screen flex justify-center items-center bg-gray-900">
 
-        <div className="flex">
+      <div className="w-[900px] h-[650px] bg-gray-800 rounded-2xl shadow-lg border border-gray-700 flex text-white">
 
-          {/* sidebar */}
-          <div className={`${chatListClick ? "hidden md:block" : "block"}`}>
-            
-            <div className="text-2xl font-bold border-l-4 border-greenAccent px-3">
-              Kurakani
-            </div>
+        {/* LEFT SIDEBAR */}
+        <div className="w-[280px] border-r border-gray-700 p-4 flex flex-col">
 
-            <div className="mt-10 flex flex-col gap-5">
-
-              <div onClick={() => setChatListClick(true)}>
-                <ChatRoom isClicked={chatListClick} />
-              </div>
-
-              <div className="text-center">
-                <p className="font-semibold">
-                  Namaste, {user || "Loading..."}
-                </p>
-
-                <p
-                  className="mt-3 cursor-pointer text-sm hover:text-black"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </p>
-              </div>
-            </div>
+          {/* title (ONLY non-white text) */}
+          <div className="text-2xl font-bold border-l-4 border-green-500 pl-3 text-green-400">
+            Kurakani
           </div>
 
-          {/* chat area */}
-          <div
-            className={`${
-              chatListClick ? "block" : "hidden"
-            } md:block lg:w-[700px] md:h-[600px] md:ml-6 md:border-l-2 md:pl-6`}
-          >
-            <ChatBox user={user} openChatList={handleCloseChatList} />
+          {/* tabs */}
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => setSelectedTab("friends")}
+              className={`flex-1 p-2 rounded-lg text-sm ${
+                selectedTab === "friends"
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-700 text-white"
+              }`}
+            >
+              Friends
+            </button>
+
+            <button
+              onClick={() => setSelectedTab("groups")}
+              className={`flex-1 p-2 rounded-lg text-sm ${
+                selectedTab === "groups"
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-700 text-white"
+              }`}
+            >
+              Groups
+            </button>
+          </div>
+
+          {/* chat list */}
+          <div className="mt-6 flex-1 overflow-y-auto text-white">
+            <ChatRoom
+              type={selectedTab}
+              onSelect={(chat) => setSelectedChat(chat)}
+            />
+          </div>
+
+          {/* user */}
+          <div className="mt-4 text-sm text-white">
+            {user?.name}
+          </div>
+        </div>
+
+        {/* RIGHT CHAT AREA */}
+        <div className="flex-1 flex flex-col">
+
+          {/* top bar */}
+          <div className="flex justify-between items-center p-4 border-b border-gray-700">
+
+            <div className="font-semibold text-white">
+              {selectedChat?.name || "Select a chat"}
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="px-4 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600 text-sm"
+            >
+              Logout
+            </button>
+          </div>
+
+          {/* chat box */}
+          <div className="flex-1 p-4 overflow-hidden">
+            <ChatBox
+              user={user}
+              chat={selectedChat}
+            />
           </div>
 
         </div>
