@@ -1,125 +1,55 @@
 @import "tailwindcss";
 
-@theme {
 
-    --color-backgroundDark: #1e1e1e;
-    --color-cardBgDark: #383838;
-    --color-placeholderBgDark: #d1d5db;
-    --color-greenAccent: #4ade80;
-    --color-greenAccentHover: #40bd6e;
+:root {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
 
-    --color-backgroundLight: #f1f5f9;
-    --color-cardBgLight: #ffffff;
-    --color-placeholderBgLight: #e5e7eb;
-    --color-greenAccentLight: #16a34a;
-    --color-greenAccentHoverLight: #15803d;
+  --accent: #16a34a;
+  --accent-hover: #15803d;
 
-
-    /* Dark Theme */
-    --color-chat-bg-dark: #111827;
-    --color-message-sender-dark: #22c55e;
-    --color-message-receiver-dark: #1e293b;
-    --color-message-receiver-text-dark: #f8fafc;
-    --color-chat-header-bg-dark: #1e293b;
-    --color-chat-header-text-dark: #f8fafc;
-    --color-chat-header-subtitle-dark: #94a3b8;
-    --color-chat-header-border-dark: #334155;
-    --color-chat-list-bg-dark: #1e293b;
-    --color-chat-list-item-dark: #2a2a2a;
-    --color-chat-list-item-hover-dark: #334155;
-    --color-chat-list-item-active-dark: #22c55e;
-    --color-chat-list-text-dark: #f8fafc;
-    --color-chat-list-subtitle-dark: #94a3b8;
-    --color-message-input-dark: #1f2937;
-    --color-message-input-text-dark: #e5e7eb;
-    --color-placeholderBgDark: #9ca3af;
-
-    /* Light Theme */
-    --color-chat-bg-light: #f8fafc;
-    --color-message-sender-light: #16a34a;
-    --color-message-sender-text-light: #ffffff;
-    --color-message-receiver-light: #ffffff;
-    --color-message-receiver-text-light: #0f172a;
-    --color-message-receiver-border-light: #e2e8f0;
-    --color-chat-header-bg-light: #ffffff;
-    --color-chat-header-text-light: #0f172a;
-    --color-chat-header-subtitle-light: #64748b;
-    --color-chat-header-border-light: #e2e8f0;
-    --color-chat-list-bg-light: #f8fafc;
-    --color-chat-list-item-light: #ffffff;
-    --color-chat-list-item-hover-light: #f1f5f9;
-    --color-chat-list-item-active-light: #dcfce7;
-    --color-chat-list-text-light: #0f172a;
-    --color-chat-list-subtitle-light: #64748b;
-    --color-message-box-light: #ffffff;
-    --color-message-box-border-light: #e2e8f0;
-
-    /* Shared Colors */
-    --color-online-status: #22c55e;
-    --color-offline-status: #94a3b8;
-    --color-typing-indicator: #f59e0b;
-    --color-button-primary: #16a34a;
-    --color-button-primary-hover: #15803d;
-    --color-button-secondary-dark: #475569;
-    --color-button-secondary-light: #e2e8f0;
-    --color-shadow-light: rgba(0, 0, 0, 0.08);
-
-    --color-shadow-dark: rgba(0, 0, 0, 0.6);
-
-    --color-scrollbar-track-dark: #1e293b;
-    --color-scrollbar-thumb-dark: #475569;
-    --color-scrollbar-track-light: #f1f5f9;
-    --color-scrollbar-thumb-light: #cbd5e1;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --placeholder: #9ca3af;
 }
+
+
+.dark {
+  --bg: #1e1e1e;
+  --card: #383838;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --border: #334155;
+
+  --accent: #4ade80;
+  --accent-hover: #40bd6e;
+
+  --input-bg: #1f2937;
+  --input-border: #475569;
+  --placeholder: #9ca3af;
+}
+
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+
+input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+}
+
+input::placeholder {
+  color: var(--placeholder);
+}
+
 
 ::-webkit-scrollbar {
-    width: 0px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-}
-
-.loader {
-    height: 16px;
-    aspect-ratio: 2.5;
-    --_g: no-repeat radial-gradient(farthest-side, #fff 90%, #0000);
-    background: var(--_g), var(--_g), var(--_g), var(--_g);
-    background-size: 20% 50%;
-    animation: l43 1.4s infinite linear;
-}
-
-@keyframes l43 {
-    0% {
-        background-position: calc(0*100%/3) 50%, calc(1*100%/3) 50%, calc(2*100%/3) 50%, calc(3*100%/3) 50%
-    }
-
-    16.67% {
-        background-position: calc(0*100%/3) 0, calc(1*100%/3) 50%, calc(2*100%/3) 50%, calc(3*100%/3) 50%
-    }
-
-    33.33% {
-        background-position: calc(0*100%/3) 100%, calc(1*100%/3) 0, calc(2*100%/3) 50%, calc(3*100%/3) 50%
-    }
-
-    50% {
-        background-position: calc(0*100%/3) 50%, calc(1*100%/3) 100%, calc(2*100%/3) 0, calc(3*100%/3) 50%
-    }
-
-    66.67% {
-        background-position: calc(0*100%/3) 50%, calc(1*100%/3) 50%, calc(2*100%/3) 100%, calc(3*100%/3) 0
-    }
-
-    83.33% {
-        background-position: calc(0*100%/3) 50%, calc(1*100%/3) 50%, calc(2*100%/3) 50%, calc(3*100%/3) 100%
-    }
-
-    100% {
-        background-position: calc(0*100%/3) 50%, calc(1*100%/3) 50%, calc(2*100%/3) 50%, calc(3*100%/3) 50%
-    }
+  width: 0px;
 }
