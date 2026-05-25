@@ -6,9 +6,12 @@ import sortMessages from "../Utility/SortMessages";
 
 const ChatBox = (props) => {
   const [onlineCount, setOnlineCount] = useState(0);
-  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [remoteTyping, setRemoteTyping] = useState(false);
+
   const [messageToSend, setMessageToSend] = useState("");
   const [isSending, setIsSending] = useState(false);
+
   const [allMessages, setAllMessages] = useState([]);
   const [isLoadingMsg, setIsLoadingMsg] = useState(false);
   const [loadingError, setLoadingError] = useState(null);
@@ -19,21 +22,56 @@ const ChatBox = (props) => {
 
   const chatBoxRef = useRef(null);
 
-  // fetch messages once
+  // ---------------- FETCH MESSAGES (per chat) ----------------
+  const fetchMessage = async () => {
+    if (!props.chat?._id) return;
+
+    setIsLoadingMsg(true);
+
+    try {
+      const response = await fetch(
+        `${host}/api/kurakani/chat/${props.chat._id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const r = await response.json();
+
+      if (response.ok) {
+        const sorted = sortMessages(r.data || []);
+        setAllMessages(sorted);
+      } else {
+        setLoadingError(r.message);
+      }
+    } catch (err) {
+      setLoadingError("Failed to load messages");
+    } finally {
+      setIsLoadingMsg(false);
+    }
+  };
+
+  // refetch when chat changes
   useEffect(() => {
     fetchMessage();
-  }, []);
+  }, [props.chat]);
 
-  // socket listeners
+  // ---------------- SOCKET LISTENERS ----------------
   useEffect(() => {
     if (!isConnected || !socket) return;
 
-    const handleRecentMessage = (msgs) => {
-      setAllMessages((prev) => [...prev, msgs.createdMsg]);
+    const handleRecentMessage = (data) => {
+      if (data.chatId !== props.chat?._id) return;
+      setAllMessages((prev) => [...prev, data.createdMsg]);
     };
 
     const handleTyping = (typingInfo) => {
-      setTyping(typingInfo.state);
+      setRemoteTyping(typingInfo.state);
     };
 
     const handleOnlineUsers = (count) => {
@@ -49,137 +87,122 @@ const ChatBox = (props) => {
       socket.off("typing", handleTyping);
       socket.off("onlineUsersCount", handleOnlineUsers);
     };
-  }, [socket, isConnected]);
+  }, [socket, isConnected, props.chat]);
 
-  // typing emit
+  // ---------------- SEND TYPING STATUS ----------------
   useEffect(() => {
     if (!socket) return;
-    socket.emit("typing", typing);
-  }, [typing, socket]);
 
-  // scroll to bottom
+    socket.emit("typing", {
+      chatId: props.chat?._id,
+      state: isTyping,
+    });
+  }, [isTyping, socket, props.chat]);
+
+  // ---------------- AUTO SCROLL ----------------
   useEffect(() => {
-    if (chatBoxRef.current) {
+    if (chatBoxRef.current && !remoteTyping) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
-  }, [allMessages, typing]);
+  }, [allMessages, remoteTyping]);
 
-  const fetchMessage = async () => {
-    setIsLoadingMsg(true);
-
-    try {
-      const response = await fetch(`${host}/api/kurakani/chat`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          Accept: "*/*",
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-      });
-
-      const r = await response.json();
-
-      if (response.ok) {
-        const sorted = sortMessages(r.data);
-        setAllMessages(sorted);
-      } else {
-        setLoadingError(r.message);
-      }
-    } catch (err) {
-      setLoadingError("Failed to load messages");
-    } finally {
-      setIsLoadingMsg(false);
-    }
-  };
-
+  // ---------------- SEND MESSAGE ----------------
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
-    if (!messageToSend.trim() || !socket) return;
+    if (!messageToSend.trim() || !socket || !props.chat?._id) return;
 
     setIsSending(true);
 
-    socket.emit("sendMessage", messageToSend, () => {
-      setIsSending(false);
-    });
+    socket.emit(
+      "sendMessage",
+      {
+        chatId: props.chat._id,
+        message: messageToSend,
+      },
+      () => {
+        setIsSending(false);
+      }
+    );
 
     setMessageToSend("");
   };
 
+  // ---------------- UI ----------------
   return (
-    <div className="border-2 border-t-0 border-chat-header-border-light dark:border-chat-header-border-dark rounded-t-xl">
+    <div className="border-2 border-t-0 rounded-t-xl">
 
-      {/* header */}
-      <div className="bg-transparent sticky top-0 backdrop-blur-lg rounded-t-xl px-3 py-2 flex flex-row gap-3 items-center border-b-2 border-chat-header-border-light dark:border-chat-header-border-dark">
-        <div
-          className="md:hidden w-10 h-10 text-center text-white p-2 text-2xl mr-4 rounded-full"
-          onClick={() => props.openChatList(false)}
-        >
-          &lt;
-        </div>
-
-        <div className="w-10 h-10 rounded-full bg-amber-500 text-center leading-10 font-black text-white">
-          DC
+      {/* HEADER */}
+      <div className="px-3 py-2 flex items-center gap-3 border-b">
+        <div className="w-10 h-10 rounded-full bg-amber-500 text-center leading-10 font-bold text-white">
+          {props.chat?.name?.slice(0, 2).toUpperCase() || "DC"}
         </div>
 
         <div>
-          <p className="font-bold text-xl text-chat-header-text-light dark:text-chat-header-text-dark">
-            Default Chat
+          <p className="font-bold text-xl">
+            {props.chat?.name || "Select a chat"}
           </p>
 
           <div className="text-xs">
-            <div className="w-2 h-2 bg-green-500 rounded-full inline-block"></div>{" "}
+            <span className="w-2 h-2 bg-green-500 rounded-full inline-block"></span>{" "}
             {onlineCount} Active Now
           </div>
         </div>
       </div>
 
-      {/* messages */}
+      {/* MESSAGES */}
       <div
         ref={chatBoxRef}
-        className="h-[500px] md:h-[510px] overflow-auto bg-chat-bg-light dark:bg-chat-bg-dark flex flex-col"
+        className="h-[500px] overflow-auto flex flex-col p-3"
       >
-        {allMessages.map((m, i) => (
-          <div
-            key={m._id || i}
-            className={props.user === m.username.username ? "self-end" : "self-start"}
-          >
-            <MessageBubble
-              sender={m.username.username}
-              msg={m.message}
-              timestamp={m.createdAt}
-              user={props.user}
-            />
+        {!props.chat?._id && (
+          <div className="text-gray-400 text-center mt-10">
+            Select a chat to start messaging
           </div>
-        ))}
+        )}
 
-        {typing && (
-          <p className="mx-6 mb-2 text-sm text-green-700 font-semibold">
+        {allMessages.map((m, i) => {
+          const isMe =
+            props.user?.username === m?.username?.username;
+
+          return (
+            <div
+              key={m._id || i}
+              className={isMe ? "self-end" : "self-start"}
+            >
+              <MessageBubble
+                sender={m.username.username}
+                msg={m.message}
+                timestamp={m.createdAt}
+                user={props.user}
+              />
+            </div>
+          );
+        })}
+
+        {remoteTyping && (
+          <p className="text-sm text-green-600 font-semibold mt-2">
             Someone is typing...
           </p>
         )}
       </div>
 
-      {/* input */}
-      <div className="border-t-2 dark:border-slate-700">
-        <form
-          className="flex items-center"
-          onSubmit={handleFormSubmit}
-        >
+      {/* INPUT */}
+      <div className="border-t">
+        <form onSubmit={handleFormSubmit} className="flex items-center">
           <textarea
             value={messageToSend}
-            placeholder="Your message here"
-            className="flex-1 resize-none m-3 p-2 rounded-xl"
+            placeholder="Type message..."
+            className="flex-1 m-2 p-2 rounded-lg resize-none"
             onChange={(e) => setMessageToSend(e.target.value)}
-            onFocus={() => setTyping(true)}
-            onBlur={() => setTyping(false)}
+            onFocus={() => setIsTyping(true)}
+            onBlur={() => setIsTyping(false)}
           />
 
           <button
             type="submit"
             disabled={isSending}
-            className="m-2 p-3 bg-green-600 text-white rounded-xl"
+            className="m-2 px-4 py-2 bg-green-600 text-white rounded-lg"
           >
             Send
           </button>
