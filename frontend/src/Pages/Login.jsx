@@ -74,8 +74,8 @@ const Login = () => {
   };
 
   return (
-  <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900">
-  <div className="w-[400px] bg-cardBgLight dark:bg-cardBgDark rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+  <div className="min-h-screen flex justify-center items-center bg-blue-100 dark:bg-blue-900">
+  <div className="w-[400px] bg-cardBgLight dark:bg-cardBgDark rounded-2xl p-6 shadow-lg border border-green-200 dark:border-green-700">
 
     <p className="text-2xl font-bold border-l-4 border-greenAccent pl-3">
       Login to Kurakani
@@ -90,10 +90,10 @@ const Login = () => {
     <form onSubmit={handleFormSubmit}>
       {/* username */}
       <div className="flex flex-col mt-8 gap-2">
-        <label className="text-sm font-medium">Username</label>
+        <label className="text-sm text-white font-medium">Username</label>
         <input
           type="text"
-          className="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
+          className="w-full p-2 rounded-xl border border-green-300 dark:border-green-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
           onChange={(e) => setUsername(e.target.value)}
         />
         {usrError && <p className="text-red-500 text-sm">{usrError}</p>}
@@ -101,10 +101,10 @@ const Login = () => {
 
       {/* password */}
       <div className="flex flex-col mt-6 gap-2">
-        <label className="text-sm font-medium">Password</label>
+        <label className="text-sm text-white font-medium">Password</label>
         <input
           type="password"
-          className="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
+          className="w-full p-2 rounded-xl border border-green-300 dark:border-green-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
           onChange={(e) => setPassword(e.target.value)}
         />
         {pasError && <p className="text-red-500 text-sm">{pasError}</p>}
@@ -117,7 +117,7 @@ const Login = () => {
           className="accent-greenAccent"
           onChange={(e) => setRemember(e.target.checked)}
         />
-        <label className="text-sm">Remember me</label>
+        <label className="text-sm text-white">Remember me</label>
       </div>
 
       {/* submit */}
@@ -130,7 +130,7 @@ const Login = () => {
       </button>
 
       <div className="mt-5 text-center text-sm">
-        <p>
+        <p className="text-white">
           Don’t have an account?{" "}
           <Link to="/signup" className="text-blue-500 underline">
             Sign Up

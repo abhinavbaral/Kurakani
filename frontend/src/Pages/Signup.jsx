@@ -75,10 +75,10 @@ const Signup = () => {
     <form onSubmit={handleFormSubmit}>
       {/* username */}
       <div className="flex flex-col mt-8 gap-2">
-        <label className="text-sm font-medium">Username</label>
+        <label className="text-sm text-white font-medium">Username</label>
         <input
           type="text"
-          className="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
+          className="w-full p-2 rounded-xl border border-green-300 dark:border-green-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
           onChange={(e) => setUsername(e.target.value)}
         />
         {usrError && <p className="text-red-500 text-sm">{usrError}</p>}
@@ -86,10 +86,10 @@ const Signup = () => {
 
       {/* password */}
       <div className="flex flex-col mt-6 gap-2">
-        <label className="text-sm font-medium">Password</label>
+        <label className="text-sm text-white font-medium">Password</label>
         <input
           type="password"
-          className="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
+          className="w-full p-2 rounded-xl border border-green-300 dark:border-green-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-greenAccent"
           onChange={(e) => setPassword(e.target.value)}
         />
         {pasError && <p className="text-red-500 text-sm">{pasError}</p>}
@@ -105,7 +105,7 @@ const Signup = () => {
       </button>
 
       <div className="mt-5 text-center text-sm">
-        <p>
+        <p className="text-white">
           Already have an account?{" "}
           <Link to="/login" className="text-blue-500 underline">
             Login
